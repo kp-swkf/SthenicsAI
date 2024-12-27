@@ -5,8 +5,8 @@ struct CreateAccountView: View {
 
     var body: some View {
         NavigationView {
-            ScrollView { // Allow scrolling if content overflows
-                VStack(spacing: 20) { // Reduce spacing to fit everything better
+            ScrollView {
+                VStack(spacing: 20) {
                     Text("Create Account")
                         .font(.largeTitle)
                         .fontWeight(.bold)
@@ -36,6 +36,28 @@ struct CreateAccountView: View {
                         .textInputAutocapitalization(.none)
                         .keyboardType(.emailAddress)
 
+                    // Password Field
+                    SecureField("Password", text: $viewModel.password)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+
+                    // Confirm Password Field
+                    SecureField("Confirm Password", text: $viewModel.confirmPassword)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                        .onChange(of: viewModel.confirmPassword) { _ in
+                            viewModel.checkPassword()
+                        }
+
+                    // Password Match Error Message
+                    if !viewModel.arePasswordsValid {
+                        Text("Passwords do not match.")
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+
                     // Date Picker for DOB
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Date of Birth")
@@ -48,7 +70,7 @@ struct CreateAccountView: View {
                     .background(Color(.systemGray6))
                     .cornerRadius(8)
 
-                    // Error Message
+                    // General Error Message
                     if !viewModel.errorMessage.isEmpty {
                         Text(viewModel.errorMessage)
                             .foregroundColor(.red)
@@ -69,26 +91,49 @@ struct CreateAccountView: View {
 
                     // Submit Button
                     Button(action: {
-                        if viewModel.isDOBValid {
+                        viewModel.updateModel()
+                        if viewModel.isDOBValid && viewModel.arePasswordsValid {
                             print("Proceeding with account creation...")
                         }
                     }) {
                         Text("Create Account")
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(viewModel.isDOBValid ? Color.blue : Color.gray)
+                            .background(viewModel.isDOBValid && viewModel.arePasswordsValid ? Color.blue : Color.gray)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    .disabled(!viewModel.isDOBValid)
+                    .disabled(!viewModel.isDOBValid || !viewModel.arePasswordsValid)
                 }
                 .padding()
             }
-            .navigationBarTitle("", displayMode: .inline) // Hides NavigationView title
+            .navigationBarTitle("", displayMode: .inline)
         }
     }
 }
 
-#Preview {
-    CreateAccountView()
+struct CreateAccountView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            CreateAccountView()
+                .previewDisplayName("Default State")
+                .environment(\.locale, .init(identifier: "en")) // Default English locale
+            
+            CreateAccountView()
+                .previewDisplayName("Error State")
+                .environmentObject(
+                    CreateAccountViewModel(
+                        model: CreateAccountModel(
+                            firstName: "John",
+                            lastName: "Doe",
+                            password: "password123",
+                            confirmPassword: "password456", // Password mismatch
+                            email: "john.doe@example.com",
+                            dob: Date(timeIntervalSince1970: 315569952),
+                            haveAccount: false
+                        )
+                    )
+                )
+        }
+    }
 }
