@@ -28,6 +28,13 @@ struct CreateAccountView: View {
                         .textInputAutocapitalization(.words)
                         .keyboardType(.default)
 
+                    // Modified name error to show only after submit
+                    if viewModel.didAttemptSubmit, let nameError = viewModel.nameError {
+                        Text(nameError)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+
                     // Email Field
                     TextField("Email", text: $viewModel.email)
                         .padding()
@@ -36,24 +43,35 @@ struct CreateAccountView: View {
                         .textInputAutocapitalization(.none)
                         .keyboardType(.emailAddress)
 
+                    // Modified email error
+                    if viewModel.didAttemptSubmit, let emailError = viewModel.emailError {
+                        Text(emailError)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+
                     // Password Field
                     SecureField("Password", text: $viewModel.password)
                         .padding()
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
 
+                    // Modified password strength error
+                    if viewModel.didAttemptSubmit, let passwordStrengthError = viewModel.passwordStrengthError {
+                        Text(passwordStrengthError)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+
                     // Confirm Password Field
                     SecureField("Confirm Password", text: $viewModel.confirmPassword)
                         .padding()
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
-                        .onChange(of: viewModel.confirmPassword) { _ in
-                            viewModel.checkPassword()
-                        }
 
-                    // Password Match Error Message
-                    if !viewModel.arePasswordsValid {
-                        Text("Passwords do not match.")
+                    // Modified password match error
+                    if viewModel.didAttemptSubmit, let passwordMatchError = viewModel.passwordMatchError {
+                        Text(passwordMatchError)
                             .foregroundColor(.red)
                             .font(.caption)
                     }
@@ -70,8 +88,15 @@ struct CreateAccountView: View {
                     .background(Color(.systemGray6))
                     .cornerRadius(8)
 
-                    // General Error Message
-                    if !viewModel.errorMessage.isEmpty {
+                    // Modified DOB error
+                    if viewModel.didAttemptSubmit, let dobError = viewModel.dobError {
+                        Text(dobError)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+
+                    // Modified general error message
+                    if viewModel.didAttemptSubmit, !viewModel.errorMessage.isEmpty {
                         Text(viewModel.errorMessage)
                             .foregroundColor(.red)
                             .font(.caption)
@@ -89,21 +114,17 @@ struct CreateAccountView: View {
                         }
                     }
 
-                    // Submit Button
+                    // Modified Submit Button
                     Button(action: {
-                        viewModel.updateModel()
-                        if viewModel.isDOBValid && viewModel.arePasswordsValid {
-                            print("Proceeding with account creation...")
-                        }
+                        viewModel.validateAndCreateAccount()
                     }) {
                         Text("Create Account")
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(viewModel.isDOBValid && viewModel.arePasswordsValid ? Color.blue : Color.gray)
+                            .background(Color.blue)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    .disabled(!viewModel.isDOBValid || !viewModel.arePasswordsValid)
                 }
                 .padding()
             }
