@@ -6,6 +6,8 @@ struct LoginPageView: View {
     @State private var rememberMe: Bool = false
     @State private var errorMessage: String? = nil
     @FocusState private var isFocused: Bool
+    @StateObject private var viewModel = EmailInputViewModel()
+    
     
     func checkErrorMessage() {
         if let errorMessage =  errorMessage {
@@ -45,7 +47,7 @@ struct LoginPageView: View {
                 
                 // Login Button
                 Button(action: {
-                    // Handle Login Action
+                    viewModel.signIn()
                 }) {
                     Text("Log In")
                         .frame(maxWidth: .infinity)

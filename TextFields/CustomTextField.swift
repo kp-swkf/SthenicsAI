@@ -36,8 +36,8 @@ struct CustomTextField: View {
 
 #Preview {
     // Using @State to simulate bindings in previews
-    @State var text: String = ""
-    @State var errorMessage: String = "This field is required."
+    @Previewable @State var text: String = ""
+    @Previewable @State var errorMessage: String = "This field is required."
     
     return CustomTextField(
         placeholder: "Enter your name",

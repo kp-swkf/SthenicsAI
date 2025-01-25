@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 
+@MainActor
 class CreateAccountViewModel: ObservableObject {
     // Published properties for the UI
     @Published var firstName: String = ""

@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 
+@MainActor
 class LoginPageViewModel: ObservableObject {
     
 //    func checkErrorMessage() {

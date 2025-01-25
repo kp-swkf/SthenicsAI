@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAJVy56Cn4qBNB93ylp2Q_RlTSAO-yTicA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>943487445608</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.swiftkraft.swiftgrows</string>
+	<key>PROJECT_ID</key>
+	<string>swiftgrows-ec793</string>
+	<key>STORAGE_BUCKET</key>
+	<string>swiftgrows-ec793.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:943487445608:ios:7867c09e2eff2c753ee9dd</string>
+</dict>
+</plist>

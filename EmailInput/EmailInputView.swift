@@ -10,17 +10,29 @@ struct EmailInputView: View {
                 // Email Icon
                 Image(systemName: "envelope")
                     .foregroundColor(isFocused ? .blue : .gray)
+                    .accessibilityLabel("Email Icon")
                 
                 // Email Input Field
                 TextField("Email", text: $viewModel.email)
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)
                     .focused($isFocused)
+                    .submitLabel(.next)
+                    .onChange(of: viewModel.email) { _ in
+                        viewModel.validateEmail(email: viewModel.email)
+                    }
+                    .accessibilityLabel("Email Field")
+                    .accessibilityHint("Enter your email address here")
                 
-                // Validation Indicator
+                // Clear & Validate Button
                 if !viewModel.email.isEmpty {
-                    Image(systemName: viewModel.isValid ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundColor(viewModel.isValid ? .green : .red)
+                    Button(action: {
+                        viewModel.email = ""
+                    }) {
+                        Image(systemName: viewModel.isValid ? "xmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundColor(viewModel.isValid ? .green : .red)
+                            .accessibilityLabel("Clear and validate input")
+                    }
                 }
             }
             .padding()
@@ -39,7 +51,8 @@ struct EmailInputView: View {
                 Text(viewModel.errorMessage)
                     .font(.caption)
                     .foregroundColor(.red)
-                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, 16) // Align with text field padding
             }
         }
         .onChange(of: isFocused) { newValue in
