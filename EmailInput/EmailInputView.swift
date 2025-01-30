@@ -1,66 +1,53 @@
 import SwiftUI
 
 struct EmailInputView: View {
-    @ObservedObject var viewModel: EmailInputViewModel
+    @Binding var email: String
+    @Binding var errorMessage: String
     @FocusState private var isFocused: Bool
-    
+
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 5) {
+            // Email Input Field
             HStack {
-                // Email Icon
                 Image(systemName: "envelope")
                     .foregroundColor(isFocused ? .blue : .gray)
-                    .accessibilityLabel("Email Icon")
-                
-                // Email Input Field
-                TextField("Email", text: $viewModel.email)
+
+                TextField("Email", text: $email)
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)
                     .focused($isFocused)
-                    .submitLabel(.next)
-                    .onChange(of: viewModel.email) { _ in
-                        viewModel.validateEmail(email: viewModel.email)
+                    .onChange(of: email) { newValue in
+                        validateEmail(newValue)
                     }
-                    .accessibilityLabel("Email Field")
-                    .accessibilityHint("Enter your email address here")
-                
-                // Clear & Validate Button
-                if !viewModel.email.isEmpty {
+
+                if !email.isEmpty {
                     Button(action: {
-                        viewModel.email = ""
+                        email = ""
+                        errorMessage = ""
                     }) {
-                        Image(systemName: viewModel.isValid ? "xmark.circle.fill" : "xmark.circle.fill")
-                            .foregroundColor(viewModel.isValid ? .green : .red)
-                            .accessibilityLabel("Clear and validate input")
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
                     }
                 }
             }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(.systemGray6))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(isFocused ? Color.blue : Color.clear, lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
-            
+
             // Error Message
-            if !viewModel.errorMessage.isEmpty {
-                Text(viewModel.errorMessage)
+            if !errorMessage.isEmpty {
+                Text(errorMessage)
                     .font(.caption)
                     .foregroundColor(.red)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 16) // Align with text field padding
             }
         }
-        .onChange(of: isFocused) { newValue in
-            viewModel.isFocused = newValue
+    }
+
+    private func validateEmail(_ email: String) {
+        let validation = ValidationManager.validateEmail(email)
+        switch validation {
+        case .success:
+            errorMessage = ""
+        case .failure(let message):
+            errorMessage = message
         }
     }
 }
 
-#Preview {
-    EmailInputView(viewModel: EmailInputViewModel())
-}

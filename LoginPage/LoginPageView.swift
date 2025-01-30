@@ -5,17 +5,7 @@ struct LoginPageView: View {
     @State private var password: String = ""
     @State private var rememberMe: Bool = false
     @State private var errorMessage: String? = nil
-    @FocusState private var isFocused: Bool
-    @StateObject private var viewModel = EmailInputViewModel()
-    
-    
-    func checkErrorMessage() {
-        if let errorMessage =  errorMessage {
-            Text(errorMessage)
-                .foregroundColor(.red)
-                .font(.footnote)
-        }
-    }
+    @FocusState private var isFocused: Bool // Manage field focus
 
     var body: some View {
         NavigationView {
@@ -32,9 +22,23 @@ struct LoginPageView: View {
                 
                 Spacer().frame(height: 75)
                 
-                EmailInputView(viewModel: EmailInputViewModel())
+                // Email Input Field
+                EmailInputView(
+                    email: $email,
+                    errorMessage: Binding(
+                        get: { errorMessage ?? "" },
+                        set: { errorMessage = (($0.isEmpty) != nil) ? nil : $0 }
+                    )
+                )
                 
-                PasswordInputView(viewModel: PasswordInputViewModel())
+                // Password Input Field
+                PasswordInputView(
+                    password: $password,
+                    errorMessage: Binding(
+                        get: { errorMessage ?? "" },
+                        set: { errorMessage = $0.isEmpty ? nil : $0 }
+                    )
+                )
                 
                 // Remember Me Toggle
                 HStack {
@@ -47,7 +51,8 @@ struct LoginPageView: View {
                 
                 // Login Button
                 Button(action: {
-                    viewModel.signIn()
+                    // Perform login action
+                    print("Email: \(email), Password: \(password)")
                 }) {
                     Text("Log In")
                         .frame(maxWidth: .infinity)
@@ -120,7 +125,7 @@ struct LoginPageView: View {
             .padding()
             .navigationBarHidden(true)
             .onTapGesture {
-                isFocused = false
+                isFocused = false // Dismiss keyboard when tapping outside fields
             }
         }
     }

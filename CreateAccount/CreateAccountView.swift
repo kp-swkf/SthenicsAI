@@ -11,7 +11,7 @@ struct CreateAccountView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .padding(.top)
-
+                    
                     // First Name Field
                     TextField("First Name", text: $viewModel.firstName)
                         .padding()
@@ -19,7 +19,7 @@ struct CreateAccountView: View {
                         .cornerRadius(8)
                         .textInputAutocapitalization(.words)
                         .keyboardType(.default)
-
+                    
                     // Last Name Field
                     TextField("Last Name", text: $viewModel.lastName)
                         .padding()
@@ -27,55 +27,28 @@ struct CreateAccountView: View {
                         .cornerRadius(8)
                         .textInputAutocapitalization(.words)
                         .keyboardType(.default)
-
-                    // Modified name error to show only after submit
-                    if viewModel.didAttemptSubmit, let nameError = viewModel.nameError {
-                        Text(nameError)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
-
-                    // Email Field
-                    TextField("Email", text: $viewModel.email)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                        .textInputAutocapitalization(.none)
-                        .keyboardType(.emailAddress)
-
-                    // Modified email error
-                    if viewModel.didAttemptSubmit, let emailError = viewModel.emailError {
-                        Text(emailError)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
-
+                    
+                    // Email Input Field
+                    EmailInputView(
+                        email: $viewModel.email,  // Direct binding since email is non-optional
+                        errorMessage: Binding(
+                            get: { viewModel.emailError ?? "" },
+                            set: { viewModel.emailError = $0.isEmpty ? nil : $0 }
+                        )
+                    )
+                    
                     // Password Field
                     SecureField("Password", text: $viewModel.password)
                         .padding()
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
-
-                    // Modified password strength error
-                    if viewModel.didAttemptSubmit, let passwordStrengthError = viewModel.passwordStrengthError {
-                        Text(passwordStrengthError)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
-
+                    
                     // Confirm Password Field
-                    SecureField("Confirm Password", text: $viewModel.confirmPassword)
+                    SecureField("Confirm Password", text: $viewModel.password)
                         .padding()
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
-
-                    // Modified password match error
-                    if viewModel.didAttemptSubmit, let passwordMatchError = viewModel.passwordMatchError {
-                        Text(passwordMatchError)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
-
+                    
                     // Date Picker for DOB
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Date of Birth")
@@ -87,21 +60,14 @@ struct CreateAccountView: View {
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(8)
-
-                    // Modified DOB error
-                    if viewModel.didAttemptSubmit, let dobError = viewModel.dobError {
-                        Text(dobError)
+                    
+                    // Display General Error Message
+                    if let errorMessage = viewModel.errorMessage, !errorMessage.isEmpty {
+                        Text(errorMessage)
                             .foregroundColor(.red)
                             .font(.caption)
                     }
-
-                    // Modified general error message
-                    if viewModel.didAttemptSubmit, !viewModel.errorMessage.isEmpty {
-                        Text(viewModel.errorMessage)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
-
+                    
                     // Sign In Link
                     HStack {
                         Text("Already have an account?")
@@ -113,48 +79,30 @@ struct CreateAccountView: View {
                                 .foregroundColor(.blue)
                         }
                     }
-
-                    // Modified Submit Button
+                    
+                    // Submit Button
                     Button(action: {
-                        viewModel.validateAndCreateAccount()
+                        Task {
+                            await viewModel.createAccount()
+                        }
                     }) {
-                        Text("Create Account")
+                        Text(viewModel.isLoading ? "Creating Account..." : "Create Account")
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.blue)
+                            .background(viewModel.isLoading ? Color.gray : Color.blue)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
+                    .disabled(viewModel.isLoading)
                 }
                 .padding()
             }
-            .navigationBarTitle("", displayMode: .inline)
         }
     }
 }
 
 struct CreateAccountView_Previews: PreviewProvider {
     static var previews: some View {
-        Group {
-            CreateAccountView()
-                .previewDisplayName("Default State")
-                .environment(\.locale, .init(identifier: "en")) // Default English locale
-            
-            CreateAccountView()
-                .previewDisplayName("Error State")
-                .environmentObject(
-                    CreateAccountViewModel(
-                        model: CreateAccountModel(
-                            firstName: "John",
-                            lastName: "Doe",
-                            password: "password123",
-                            confirmPassword: "password456", // Password mismatch
-                            email: "john.doe@example.com",
-                            dob: Date(timeIntervalSince1970: 315569952),
-                            haveAccount: false
-                        )
-                    )
-                )
-        }
+        CreateAccountView()
     }
 }

@@ -1,112 +1,85 @@
+import SwiftUI
 import Combine
-import Foundation
+import FirebaseAuth
+import FirebaseFirestore
+
 
 @MainActor
-class CreateAccountViewModel: ObservableObject {
-    // Published properties for the UI
-    @Published var firstName: String = ""
-    @Published var lastName: String = ""
-    @Published var password: String = ""
-    @Published var confirmPassword: String = ""
-    @Published var email: String = ""
-    @Published var dob: Date = Date()
-    @Published var haveAccount: Bool = false
-    @Published var errorMessage: String = ""
+final class CreateAccountViewModel: ObservableObject {
+    @Published var firstName = ""
+    @Published var lastName = ""
+    @Published var email = ""
+    @Published var password = ""
+    @Published var dob = Date()
     
-    // Added new validation error properties
-    @Published var nameError: String? = nil
-    @Published var emailError: String? = nil
-    @Published var passwordStrengthError: String? = nil
-    @Published var passwordMatchError: String? = nil
-    @Published var dobError: String? = nil
-    @Published var isFormValid: Bool = false
+    @Published var isLoading = false
+    @Published var errorMessage: String?
     
-    // Added didAttemptSubmit flag
-    @Published var didAttemptSubmit: Bool = false
+    @Published var didAttemptSubmit = false
+    @Published var nameError: String?  
+    @Published var emailError: String?
+    @Published var passwordError: String?  
+    @Published var dobError: String?  
     
     private var cancellables = Set<AnyCancellable>()
-    private var model: CreateAccountModel
+    private let authenticationManager = AuthenticationManager.shared
     
-    init(model: CreateAccountModel = CreateAccountModel(firstName: "", lastName: "", password: "", confirmPassword: "", email: "", dob: Date(), haveAccount: false)) {
-        self.model = model
-        setupBindings()
-        
-        // Bind model properties to ViewModel properties
-        firstName = model.firstName
-        lastName = model.lastName
-        password = model.password
-        confirmPassword = model.confirmPassword
-        email = model.email
-        dob = model.dob
-        haveAccount = model.haveAccount
-    }
-    
-    // Added new setupBindings method
-    private func setupBindings() {
-        Publishers.CombineLatest4($firstName, $lastName, $email, $dob)
-            .debounce(for: 0.5, scheduler: RunLoop.main)
-            .sink { [weak self] firstName, lastName, email, dob in
-                self?.validateForm()
-            }
-            .store(in: &cancellables)
-        
-        Publishers.CombineLatest($password, $confirmPassword)
-            .debounce(for: 0.5, scheduler: RunLoop.main)
-            .sink { [weak self] _, _ in
-                self?.validatePasswords()
-            }
-            .store(in: &cancellables)
-    }
-    
-    // Added new validateForm method
-    func validateForm() {
-        model.firstName = firstName
-        model.lastName = lastName
-        model.email = email
-        model.dob = dob
-        
-        let namesValidation = model.areNamesValid()
-        nameError = namesValidation.errorMessage
-        
-        let emailValidation = model.isEmailValid()
-        emailError = emailValidation.errorMessage
-        
-        let dobValidation = model.isDOBValid()
-        dobError = dobValidation.errorMessage
-        
-        updateFormValidity()
-    }
-    
-    // Modified password validation
-    func validatePasswords() {
-        model.password = password
-        model.confirmPassword = confirmPassword
-        
-        let strengthValidation = model.isPasswordStrong()
-        passwordStrengthError = strengthValidation.errorMessage
-        
-        let matchValidation = model.doPasswordsMatch()
-        passwordMatchError = matchValidation.errorMessage
-        
-        updateFormValidity()
-    }
-    
-    // Added new updateFormValidity method
-    private func updateFormValidity() {
-        let validation = model.isValid()
-        isFormValid = validation.valid
-        errorMessage = validation.errorMessage ?? ""
-    }
-    
-    // Modified validateAndCreateAccount method
-    func validateAndCreateAccount() {
+    func createAccount() async {
         didAttemptSubmit = true
-        validateForm()
-        validatePasswords()
         
-        if isFormValid {
-            print("Proceeding with account creation...")
-            // Add
+        nameError = nil
+        emailError = nil
+        passwordError = nil
+        dobError = nil
+        
+        let validations = [
+            ValidationManager.validateName(firstName),
+            ValidationManager.validateName(lastName),
+            ValidationManager.validateEmail(email),
+            ValidationManager.validatePassword(password),
+            ValidationManager.validateDOB(dob)
+        ]
+        
+        for (index, validation) in validations.enumerated() {
+            if case .failure(let message) = validation {
+                errorMessage = message
+                switch index {
+                case 0:
+                    nameError = message
+                case 1:
+                    nameError = message
+                case 2:
+                    emailError = message
+                case 3:
+                    passwordError = message
+                case 4:
+                    dobError = message
+                default:
+                    break
+                }
+                return
+            }
         }
+        
+        isLoading = true
+        do {
+            let authResult = try await authenticationManager.createUser(email: email, password: password)
+            try await saveUserData(uid: authResult.uid)
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
+    
+    private func saveUserData(uid: String) async throws {
+        let user = [
+            "uid": uid,
+            "firstName": firstName,
+            "lastName": lastName,
+            "email": email,
+            "dob": dob.timeIntervalSince1970
+        ] as [String: Any]
+        try await Firestore.firestore().collection("users").document(uid).setData(user)
     }
 }

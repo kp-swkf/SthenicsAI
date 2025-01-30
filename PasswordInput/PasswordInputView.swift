@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct PasswordInputView: View {
-    @ObservedObject var viewModel: 	PasswordInputViewModel
+    @Binding var password: String
+    @Binding var errorMessage: String
     @FocusState private var isFocused: Bool
     @State private var isPasswordVisible: Bool = false
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -14,10 +15,10 @@ struct PasswordInputView: View {
                 
                 // Password Input Field
                 if isPasswordVisible {
-                    TextField("Password", text: $viewModel.password)
+                    TextField("Password", text: $password)
                         .focused($isFocused)
                 } else {
-                    SecureField("Password", text: $viewModel.password)
+                    SecureField("Password", text: $password)
                         .focused($isFocused)
                 }
                 
@@ -41,19 +42,33 @@ struct PasswordInputView: View {
             .padding(.horizontal)
             
             // Error Message
-            if !viewModel.errorMessage.isEmpty {
-                Text(viewModel.errorMessage)
+            if !errorMessage.isEmpty {
+                Text(errorMessage)
                     .font(.caption)
                     .foregroundColor(.red)
                     .padding(.horizontal)
             }
         }
-        .onChange(of: isFocused) { newValue in
-            viewModel.isFocused = newValue
+        .onChange(of: password) { newValue in
+            validatePassword(newValue)
+        }
+    }
+
+    // Password Validation Using ValidationManager
+    private func validatePassword(_ password: String) {
+        let validation = ValidationManager.validatePassword(password)
+        switch validation {
+        case .success:
+            errorMessage = ""
+        case .failure(let message):
+            errorMessage = message
         }
     }
 }
 
 #Preview {
-    PasswordInputView(viewModel: PasswordInputViewModel())
+    @State var password = ""
+    @State var errorMessage = ""
+
+    PasswordInputView(password: $password, errorMessage: $errorMessage)
 }
