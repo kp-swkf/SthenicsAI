@@ -1,15 +1,13 @@
 import SwiftUI
 
 struct LoginPageView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
+    @StateObject private var viewModel = LoginPageViewModel()
     @State private var rememberMe: Bool = false
-    @State private var errorMessage: String? = nil
-    @FocusState private var isFocused: Bool // Manage field focus
-
+    @FocusState private var isFocused: Bool
+    
     var body: some View {
         NavigationView {
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 // App Logo or Title
                 Text("Welcome Back!")
                     .font(.largeTitle)
@@ -23,22 +21,26 @@ struct LoginPageView: View {
                 Spacer().frame(height: 75)
                 
                 // Email Input Field
-                EmailInputView(
-                    email: $email,
-                    errorMessage: Binding(
-                        get: { errorMessage ?? "" },
-                        set: { errorMessage = (($0.isEmpty) != nil) ? nil : $0 }
-                    )
-                )
+                EmailInputView(email: $viewModel.email, errorMessage: $viewModel.emailErrorMessage)
+                
+                // ✅ Show email-specific error message
+                if !viewModel.emailErrorMessage.isEmpty {
+                    Text(viewModel.emailErrorMessage)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .padding(.horizontal)
+                }
                 
                 // Password Input Field
-                PasswordInputView(
-                    password: $password,
-                    errorMessage: Binding(
-                        get: { errorMessage ?? "" },
-                        set: { errorMessage = $0.isEmpty ? nil : $0 }
-                    )
-                )
+                PasswordInputView(password: $viewModel.password, errorMessage: $viewModel.passwordErrorMessage)
+                
+                // ✅ Show password-specific error message
+                if !viewModel.passwordErrorMessage.isEmpty {
+                    Text(viewModel.passwordErrorMessage)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .padding(.horizontal)
+                }
                 
                 // Remember Me Toggle
                 HStack {
@@ -51,20 +53,22 @@ struct LoginPageView: View {
                 
                 // Login Button
                 Button(action: {
-                    // Perform login action
-                    print("Email: \(email), Password: \(password)")
+                    Task {
+                        await viewModel.login() // 🔥 Call Firebase login
+                    }
                 }) {
-                    Text("Log In")
+                    Text(viewModel.isLoading ? "Logging In..." : "Log In")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
+                        .background(viewModel.isLoading ? Color.gray : Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
+                .disabled(viewModel.isLoading)
                 
                 // Forgot Password Link
                 Button(action: {
-                    // Handle Forgot Password Action
+                    // TODO: Implement Forgot Password
                 }) {
                     Text("Forgot Password?")
                         .foregroundColor(.blue)
@@ -75,7 +79,7 @@ struct LoginPageView: View {
                 
                 // Sign Up with Google
                 Button(action: {
-                    // Handle Google Sign-Up Action
+                    // TODO: Implement Google Sign-In
                 }) {
                     HStack {
                         Image(systemName: "g.circle")
@@ -92,7 +96,7 @@ struct LoginPageView: View {
                 
                 // Sign Up with Apple
                 Button(action: {
-                    // Handle Apple Sign-Up Action
+                    // TODO: Implement Apple Sign-In
                 }) {
                     HStack {
                         Image(systemName: "applelogo")
@@ -125,14 +129,17 @@ struct LoginPageView: View {
             .padding()
             .navigationBarHidden(true)
             .onTapGesture {
-                isFocused = false // Dismiss keyboard when tapping outside fields
+                isFocused = false // Dismiss keyboard
+                viewModel.emailErrorMessage = "" // ✅ Clear email error
+                viewModel.passwordErrorMessage = "" // ✅ Clear password error
             }
+        }
+        .fullScreenCover(isPresented: $viewModel.isAuthenticated) {
+            Text("Welcome, \(viewModel.email)") // ✅ Redirect to Home Screen
         }
     }
 }
 
-struct LoginPage_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginPageView()
-    }
+#Preview {
+    LoginPageView()
 }
