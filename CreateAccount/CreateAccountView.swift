@@ -2,7 +2,8 @@ import SwiftUI
 
 struct CreateAccountView: View {
     @StateObject private var viewModel = CreateAccountViewModel()
-
+    @EnvironmentObject private var coordinator: Coordinator
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -68,22 +69,13 @@ struct CreateAccountView: View {
                             .font(.caption)
                     }
                     
-                    // Sign In Link
-                    HStack {
-                        Text("Already have an account?")
-                            .font(.footnote)
-                            .foregroundColor(.gray)
-                        NavigationLink(destination: LoginPageView()) {
-                            Text("Sign In")
-                                .font(.footnote)
-                                .foregroundColor(.blue)
-                        }
-                    }
-                    
                     // Submit Button
                     Button(action: {
                         Task {
                             await viewModel.createAccount()
+                            if viewModel.errorMessage == nil {
+                                coordinator.push(.home)
+                            }
                         }
                     }) {
                         Text(viewModel.isLoading ? "Creating Account..." : "Create Account")
@@ -101,8 +93,6 @@ struct CreateAccountView: View {
     }
 }
 
-struct CreateAccountView_Previews: PreviewProvider {
-    static var previews: some View {
-        CreateAccountView()
-    }
+#Preview {
+    CreateAccountView().environmentObject(Coordinator()) // ✅ Ensure Coordinator in Preview
 }

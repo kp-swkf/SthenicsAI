@@ -3,6 +3,7 @@ import SwiftUI
 struct HomePageView: View {
     @State private var username: String = "User" // Replace with actual username data
     @State private var selectedTab: Int = 0 // Track the selected tab
+    @EnvironmentObject private var coordinator: Coordinator
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -151,9 +152,6 @@ struct SettingsView: View {
     }
 }
 
-// Preview
-struct HomePageView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomePageView()
-    }
+#Preview {
+    HomePageView().environmentObject(Coordinator())
 }
