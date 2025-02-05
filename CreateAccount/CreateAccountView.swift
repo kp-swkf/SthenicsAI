@@ -5,7 +5,6 @@ struct CreateAccountView: View {
     @EnvironmentObject private var coordinator: Coordinator
     
     var body: some View {
-        NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
                     Text("Create Account")
@@ -89,7 +88,6 @@ struct CreateAccountView: View {
                 }
                 .padding()
             }
-        }
     }
 }
 

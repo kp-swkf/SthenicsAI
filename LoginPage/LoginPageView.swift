@@ -4,8 +4,9 @@ struct LoginPageView: View {
     @StateObject private var viewModel = LoginPageViewModel()
     @EnvironmentObject private var coordinator: Coordinator
     @State private var rememberMe: Bool = false
+    @State private var isShowingCreateAccount = false
     @FocusState private var isFocused: Bool
-
+    
     var body: some View {
         NavigationStack(path: $coordinator.path) { // ✅ Use NavigationStack with Coordinator
             VStack(spacing: 10) {
@@ -18,12 +19,12 @@ struct LoginPageView: View {
                 Circle()
                     .fill(Color.blue)
                     .frame(width: 100, height: 100)
-
+                
                 Spacer().frame(height: 75)
-
+                
                 // Email Input Field
                 EmailInputView(email: $viewModel.email, errorMessage: $viewModel.emailErrorMessage)
-
+                
                 // ✅ Show email-specific error message
                 if !viewModel.emailErrorMessage.isEmpty {
                     Text(viewModel.emailErrorMessage)
@@ -34,7 +35,6 @@ struct LoginPageView: View {
 
                 // Password Input Field
                 PasswordInputView(password: $viewModel.password, errorMessage: $viewModel.passwordErrorMessage)
-
                 // ✅ Show password-specific error message
                 if !viewModel.passwordErrorMessage.isEmpty {
                     Text(viewModel.passwordErrorMessage)
@@ -69,7 +69,7 @@ struct LoginPageView: View {
                         .cornerRadius(8)
                 }
                 .disabled(viewModel.isLoading)
-
+                
                 // Forgot Password Link
                 Button(action: {
                     coordinator.push(.forgotPassword) // ✅ Navigate to Forgot Password
@@ -78,9 +78,9 @@ struct LoginPageView: View {
                         .foregroundColor(.blue)
                         .font(.footnote)
                 }
-
+                
                 Spacer().frame(height: 10)
-
+                
                 // Sign Up with Google
                 Button(action: {
                     // TODO: Implement Google Sign-In
@@ -97,7 +97,7 @@ struct LoginPageView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
-
+                
                 // Sign Up with Apple
                 Button(action: {
                     // TODO: Implement Apple Sign-In
@@ -114,14 +114,14 @@ struct LoginPageView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
-
+                
                 Spacer().frame(height: 10)
-
+                
                 // Create Account Navigation Link
                 HStack {
                     Text("Haven't started your journey yet?")
                     Button(action: {
-                        coordinator.push(.signUp) // ✅ Navigate to Create Account
+                        isShowingCreateAccount = true
                     }) {
                         Text("Create Account")
                             .foregroundColor(.blue)
@@ -129,25 +129,30 @@ struct LoginPageView: View {
                     }
                 }
                 .font(.footnote)
-
+                .padding()
+                
                 Spacer()
             }
             .padding()
-            .navigationBarHidden(true)
-            .onTapGesture {
-                isFocused = false // Dismiss keyboard
-                viewModel.emailErrorMessage = "" // ✅ Clear email error
-                viewModel.passwordErrorMessage = "" // ✅ Clear password error
+            .sheet(isPresented: $isShowingCreateAccount) {
+                CreateAccountView()
+                    .environmentObject(coordinator)
             }
-            .navigationDestination(for: AppScreen.self) { screen in // ✅ Handle navigation changes
-                switch screen {
-                case .home:
-                    HomePageView()
-                case .signUp:
-                    CreateAccountView()
-                case .forgotPassword:
-                    ForgotPasswordView()
-                }
+        }
+        .navigationBarHidden(true)
+        .onTapGesture {
+            isFocused = false // Dismiss keyboard
+            viewModel.emailErrorMessage = "" // ✅ Clear email error
+            viewModel.passwordErrorMessage = "" // ✅ Clear password error
+        }
+        .navigationDestination(for: AppScreen.self) { screen in // ✅ Handle navigation changes
+            switch screen {
+            case .home:
+                HomePageView()
+            case .signUp:
+                CreateAccountView()
+            case .forgotPassword:
+                ForgotPasswordView()
             }
         }
     }
