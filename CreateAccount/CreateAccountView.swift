@@ -2,7 +2,6 @@ import SwiftUI
 
 struct CreateAccountView: View {
     @StateObject private var viewModel = CreateAccountViewModel()
-    @EnvironmentObject private var coordinator: Coordinator
     
     var body: some View {
             ScrollView {
@@ -73,7 +72,6 @@ struct CreateAccountView: View {
                         Task {
                             await viewModel.createAccount()
                             if viewModel.errorMessage == nil {
-                                coordinator.push(.home)
                             }
                         }
                     }) {
@@ -92,5 +90,5 @@ struct CreateAccountView: View {
 }
 
 #Preview {
-    CreateAccountView().environmentObject(Coordinator()) // ✅ Ensure Coordinator in Preview
+    CreateAccountView()
 }
