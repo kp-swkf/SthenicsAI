@@ -24,11 +24,17 @@ struct LoginPageView: View {
                     
                     Spacer().frame(height: 25)
                     
-                    Circle()
-                        .fill(Color.blue)
-                        .frame(width: 100, height: 100)
+                    LottieView(animationName: "LoginPageProfile", scale: 0.1)
+                        .frame(width: 150, height: 150)
+                            .background(Color.black.opacity(0.2))
+                            .cornerRadius(15)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.blue, lineWidth: 4)
+                            )
+                            .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 4)
                     
-                    Spacer().frame(height: 75)
+                    Spacer().frame(height: 55)
                     
                     EmailInputView(email: $viewModel.email,
                                    errorMessage: $viewModel.emailErrorMessage)
@@ -54,7 +60,7 @@ struct LoginPageView: View {
                             Text("Remember Me")
                         }
                         .toggleStyle(SwitchToggleStyle(tint: .blue))
-                        Spacer()
+                        Spacer().frame(height: 10)
                     }
                     
                     Button(action: {
