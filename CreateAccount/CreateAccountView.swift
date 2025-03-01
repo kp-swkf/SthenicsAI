@@ -4,6 +4,12 @@ struct CreateAccountView: View {
     @StateObject private var viewModel = CreateAccountViewModel()
     
     var body: some View {
+        ZStack {
+            Color.blue.opacity(0.8) // Base color
+                    .ignoresSafeArea()
+
+                VisualEffectBlur(blurStyle: .systemUltraThinMaterial) // System blur effect
+                    .ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 20) {
                     Text("Create Account")
@@ -86,6 +92,7 @@ struct CreateAccountView: View {
                 }
                 .padding()
             }
+        }
     }
 }
 

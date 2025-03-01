@@ -34,6 +34,31 @@ struct CustomTextField: View {
     }
 }
 
+struct VisualEffectBlur: UIViewRepresentable {
+    var blurStyle: UIBlurEffect.Style
+
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        let view = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+        return view
+    }
+
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
+}
+
+extension View {
+    func customBackground() -> some View {
+            ZStack {
+                Color.blue.opacity(0.8)
+                    .ignoresSafeArea()
+                
+                VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
+                    .ignoresSafeArea()
+                
+                self
+            }
+    }
+}
+
 #Preview {
     // Using @State to simulate bindings in previews
     @Previewable @State var text: String = ""
