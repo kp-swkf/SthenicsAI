@@ -5,77 +5,77 @@ struct HomePageView: View {
     @State private var selectedTab: Int = 0 // Track the selected tab
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            // Home Tab
-            NavigationView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Greeting Section
-                    Text("Welcome back, \(username)!")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding(.top)
-                    
-                    Text("Explore your dashboard and manage your tasks.")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    
-                    // Navigation Options
-                    HStack(spacing: 15) {
-                        NavigationLink(destination: TasksView()) {
-                            HomeCardView(icon: "checkmark.circle.fill", title: "Tasks", colour: .blue)
+        ZStack {
+            TabView(selection: $selectedTab) {
+                NavigationView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("Welcome back, \(username)!")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding(.top)
+                        
+                        Text("Explore your dashboard and manage your tasks.")
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                        
+                        HStack(spacing: 15) {
+                            NavigationLink(destination: TasksView()) {
+                                HomeCardView(icon: "checkmark.circle.fill", title: "Tasks", colour: .blue)
+                            }
+                            
+                            NavigationLink(destination: StatisticsView()) {
+                                HomeCardView(icon: "chart.bar.fill", title: "Statistics", colour: .green)
+                            }
                         }
                         
-                        NavigationLink(destination: StatisticsView()) {
-                            HomeCardView(icon: "chart.bar.fill", title: "Statistics", colour: .green)
-                        }
-                    }
-                    
-                    HStack(spacing: 15) {
-                        NavigationLink(destination: NotificationsView()) {
-                            HomeCardView(icon: "bell.fill", title: "Notifications", colour: .orange)
+                        HStack(spacing: 15) {
+                            NavigationLink(destination: NotificationsView()) {
+                                HomeCardView(icon: "bell.fill", title: "Notifications", colour: .orange)
+                            }
+                            
+                            NavigationLink(destination: SettingsView()) {
+                                HomeCardView(icon: "gearshape.fill", title: "Settings", colour: .purple)
+                            }
                         }
                         
-                        NavigationLink(destination: SettingsView()) {
-                            HomeCardView(icon: "gearshape.fill", title: "Settings", colour: .purple)
-                        }
+                        Spacer()
                     }
-                    
-                    Spacer()
+                    .padding()
+                    .customBackground()
+                    .navigationBarHidden(true)
                 }
-                .padding()
-                .navigationBarHidden(true)
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+                .tag(0)
+                
+                // Fitness Tab
+                NavigationView {
+                    FitnessView()
+                }
+                .tabItem {
+                    Label("Fitness", systemImage: "figure.walk")
+                }
+                .tag(1)
+                
+                // Nutrition Tab
+                NavigationView {
+                    NutritionView()
+                }
+                .tabItem {
+                    Label("Nutrition", systemImage: "leaf.fill")
+                }
+                .tag(2)
+                
+                // Settings Tab
+                NavigationView {
+                    SettingsView()
+                }
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape.fill")
+                }
+                .tag(3)
             }
-            .tabItem {
-                Label("Home", systemImage: "house.fill")
-            }
-            .tag(0)
-            
-            // Fitness Tab
-            NavigationView {
-                FitnessView()
-            }
-            .tabItem {
-                Label("Fitness", systemImage: "figure.walk")
-            }
-            .tag(1)
-            
-            // Nutrition Tab
-            NavigationView {
-                NutritionView()
-            }
-            .tabItem {
-                Label("Nutrition", systemImage: "leaf.fill")
-            }
-            .tag(2)
-            
-            // Settings Tab
-            NavigationView {
-                SettingsView()
-            }
-            .tabItem {
-                Label("Settings", systemImage: "gearshape.fill")
-            }
-            .tag(3)
         }
     }
 }

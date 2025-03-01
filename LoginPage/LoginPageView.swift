@@ -7,16 +7,10 @@ struct LoginPageView: View {
     @State private var isShowingCreateAccount = false
     @FocusState private var isFocused: Bool
     @Environment(\.router) var router
-
+    
     var body: some View {
         RouterView { _ in
             ZStack {
-                Color.blue.opacity(0.8) // Base color
-                        .ignoresSafeArea()
-
-                    VisualEffectBlur(blurStyle: .systemUltraThinMaterial) // System blur effect
-                        .ignoresSafeArea()
-                
                 VStack(spacing: 10) {
                     Text("Welcome Back!")
                         .font(.largeTitle)
@@ -24,15 +18,15 @@ struct LoginPageView: View {
                     
                     Spacer().frame(height: 25)
                     
-                    LottieView(animationName: "LoginPageProfile", scale: 0.1)
+                    LottieView(animationName: "LoginPageProfile", scale: 0.01)
                         .frame(width: 150, height: 150)
-                            .background(Color.black.opacity(0.2))
-                            .cornerRadius(15)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.blue, lineWidth: 4)
-                            )
-                            .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 4)
+                        .background(Color.black.opacity(0.2))
+                        .cornerRadius(15)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.blue, lineWidth: 4)
+                        )
+                        .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 4)
                     
                     Spacer().frame(height: 55)
                     
@@ -46,7 +40,8 @@ struct LoginPageView: View {
                             .padding(.horizontal)
                     }
                     
-                    PasswordInputView(password: $viewModel.password, errorMessage: $viewModel.passwordErrorMessage)
+                    PasswordInputView(password: $viewModel.password,
+                                      errorMessage: $viewModel.passwordErrorMessage)
                     
                     if !viewModel.passwordErrorMessage.isEmpty {
                         Text(viewModel.passwordErrorMessage)
@@ -60,14 +55,14 @@ struct LoginPageView: View {
                             Text("Remember Me")
                         }
                         .toggleStyle(SwitchToggleStyle(tint: .blue))
-                        Spacer().frame(height: 10)
+                        Spacer()
                     }
                     
                     Button(action: {
                         Task {
                             await viewModel.login()
                             if viewModel.isAuthenticated {
-                                router.showScreen(.push) {_ in 
+                                router.showScreen(.push) {_ in
                                     HomePageView()
                                 }
                             }
@@ -124,7 +119,7 @@ struct LoginPageView: View {
                             isShowingCreateAccount = true
                         }) {
                             Text("Create Account")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.white)
                                 .fontWeight(.medium)
                         }
                     }
@@ -142,20 +137,9 @@ struct LoginPageView: View {
                     viewModel.emailErrorMessage = ""
                     viewModel.passwordErrorMessage = ""
                 }
-            }
+            }.customBackground()
         }
     }
-}
-
-struct VisualEffectBlur: UIViewRepresentable {
-    var blurStyle: UIBlurEffect.Style
-
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        let view = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
-        return view
-    }
-
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
 }
 
 #Preview {
