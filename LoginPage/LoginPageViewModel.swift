@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftfulRouting
 import FirebaseAuth
 
 @MainActor
@@ -9,22 +10,31 @@ final class LoginPageViewModel: ObservableObject {
     @Published var passwordErrorMessage: String = "" // ✅ New error message for password
     @Published var isLoading: Bool = false
     @Published var isAuthenticated: Bool = false
+    
+    init() {
+        checkUserSession()
+    }
 
     private let authenticationManager = AuthenticationManager.shared
 
-    func login() async {
+    func login(router: Router) async {
         isLoading = true
-        emailErrorMessage = ""
-        passwordErrorMessage = ""
-
         do {
             let authResult = try await authenticationManager.login(email: email, password: password)
-            isAuthenticated = true // ✅ User successfully logged in
+            isAuthenticated = true
             print("Login successful: \(authResult.uid)")
+            router.enterScreenFlow([AnyRoute(.fullScreenCover) { _ in HomePageView() }])
+            
         } catch {
             handleAuthError(error)
         }
         isLoading = false
+    }
+    
+    func checkUserSession() {
+        if Auth.auth().currentUser != nil {
+            isAuthenticated = true
+        }
     }
 
     private func handleAuthError(_ error: Error) {

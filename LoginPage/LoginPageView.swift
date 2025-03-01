@@ -60,22 +60,30 @@ struct LoginPageView: View {
                     
                     Button(action: {
                         Task {
-                            await viewModel.login()
-                            if viewModel.isAuthenticated {
-                                router.showScreen(.push) {_ in
-                                    HomePageView()
-                                }
-                            }
+                            viewModel.isLoading = true
+                            await viewModel.login(router: router) // ✅ Login function handles authentication
+                            viewModel.isLoading = false
                         }
                     }) {
-                        Text(viewModel.isLoading ? "Logging In..." : "Log In")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(viewModel.isLoading ? Color.gray : Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .frame(width: 50, height: 50)
+                        } else {
+                            Text("Log In")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
                     }
                     .disabled(viewModel.isLoading)
+                    .onChange(of: viewModel.isAuthenticated) { newValue in
+                        if newValue {
+                            router.showScreen(.push) { _ in HomePageView() } // ✅ Only triggers when authentication is confirmed
+                        }
+                    }
                     
                     Spacer().frame(height: 10)
                     
