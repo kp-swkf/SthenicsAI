@@ -63,4 +63,19 @@ final class CreateAccountViewModel: ObservableObject {
         }
         isLoading = false
     }
+    
+    private func saveUserData(uid: String) async throws {
+        let userDocument: [String: Any] = [
+            "uid": uid,
+            "firstName": firstName,
+            "lastName": lastName,
+            "email": email
+        ]
+        
+        try await Firestore.firestore()
+            .collection("users")
+            .document(uid)
+            .setData(userDocument)
+    }
+    
 }

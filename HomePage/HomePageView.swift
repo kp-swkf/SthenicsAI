@@ -8,56 +8,26 @@ struct HomePageView: View {
         ZStack {
             TabView(selection: $selectedTab) {
                 NavigationView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text("Welcome back, \(username)!")
+                    VStack(alignment: .center, spacing: 10) {
+                        Text("SthenicsAI")
                             .font(.largeTitle)
-                            .fontWeight(.bold)
+                            .fontWeight(.heavy)
                             .padding(.top)
                         
                         Text("Explore your dashboard and manage your tasks.")
                             .font(.subheadline)
                             .foregroundColor(.black)
                         
-                        HStack(spacing: 15) {
-                            NavigationLink(destination: TasksView()) {
-                                HomeCardView(icon: "checkmark.circle.fill", title: "Tasks", colour: .blue)
-                            }
-                            
-                            NavigationLink(destination: StatisticsView()) {
-                                HomeCardView(icon: "chart.bar.fill", title: "Statistics", colour: .green)
-                            }
-                        }
-                        
-                        HStack(spacing: 15) {
-                            NavigationLink(destination: NotificationsView()) {
-                                HomeCardView(icon: "bell.fill", title: "Notifications", colour: .orange)
-                            }
-                            
-                            NavigationLink(destination: SettingsView()) {
-                                HomeCardView(icon: "gearshape.fill", title: "Settings", colour: .purple)
-                            }
-                        }
-                        
                         Spacer()
                     }
                     .padding()
-                    .customBackground()
                     .navigationBarHidden(true)
                 }
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }
                 .tag(0)
-                
-                // Fitness Tab
-                NavigationView {
-                    FitnessView()
-                }
-                .tabItem {
-                    Label("Fitness", systemImage: "figure.walk")
-                }
-                .tag(1)
-                
+                                
                 // Nutrition Tab
                 NavigationView {
                     NutritionView()
@@ -65,9 +35,23 @@ struct HomePageView: View {
                 .tabItem {
                     Label("Nutrition", systemImage: "leaf.fill")
                 }
+                .tag(1)
+                
+                NavigationView {
+                    AddWorkoutAIView()
+                }
+                .tabItem {
+                    Label("Generate",systemImage: "plus.circle.fill")
+                }
+                
+                NavigationView {
+                    WorkoutView()
+                }
+                .tabItem{
+                    Label("Workouts", systemImage: "figure.highintensity.intervaltraining")
+                }
                 .tag(2)
                 
-                // Settings Tab
                 NavigationView {
                     SettingsView()
                 }
@@ -154,3 +138,5 @@ struct SettingsView: View {
 #Preview {
     HomePageView()
 }
+
+
